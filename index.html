@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Salidas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        :root { --bg: #0a0a0b; --row-bg: #1a1a1c; --accent: #facc15; --text: #ffffff; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; overflow: hidden; }
+        
+        header { background: #000; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--accent); }
+        .clock { font-size: 3rem; font-weight: bold; color: var(--accent); }
+        
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; padding: 10px; }
+        th { text-transform: uppercase; color: #888; font-size: 1.2rem; padding: 10px; text-align: left; }
+        td { padding: 20px; font-size: 1.8rem; background: var(--row-bg); }
+        
+        .hora { font-weight: bold; color: var(--accent); width: 10%; }
+        .destino { width: 35%; text-transform: uppercase; }
+        .empresa { width: 25%; color: #ccc; }
+        .plat { text-align: center; font-size: 2.5rem; font-weight: bold; width: 10%; }
+        .estado { width: 20%; font-weight: bold; text-align: center; border-radius: 5px; }
+
+        /* Estados dinámicos */
+        .embarcando { background-color: #166534; color: #4ade80; animation: pulse 1.5s infinite; }
+        .demorado { background-color: #7f1d1d; color: #f87171; }
+        .atiempo { color: #38bdf8; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-size: 2.5rem; font-weight: bold;">SALIDAS / DEPARTURES</div>
+    <div id="reloj" class="clock">00:00</div>
+</header>
+
+<table id="tabla-salidas">
+    <thead>
+        <tr>
+            <th>Hora</th>
+            <th>Destino</th>
+            <th>Empresa</th>
+            <th style="text-align: center;">Plat.</th>
+            <th style="text-align: center;">Estado</th>
+        </tr>
+    </thead>
+    <tbody id="lista-micros">
+        </tbody>
+</table>
+
+<script>
+    // 1. REEMPLAZA ESTE LINK por el de tu Google Sheet (Publicado como CSV)
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDS6gxnJVS8_yPy99iLFENVzx72Ybvra_kXsJpqqe4tQzDFg4wgdkogY8t0qceLpSCh2Ygxo8Xb-d1/pub?gid=0&single=true&output=csv';
+
+    function actualizarReloj() {
+        const ahora = new Date();
+        document.getElementById('reloj').textContent = ahora.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+
+	// Reemplaza con la URL que copiaste en el paso anterior
+	// const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwgt420cMHLw3ecrCs2nlaq1gJMbMfxV08kejIz7Uzy3XQ5UJ5y7qvWTn8bMR8sMKbutg/exec';
+
+	// Agregamos un prefijo que "limpia" la seguridad para el navegador
+	const WEB_APP_URL = 'https://cors-proxy.fringe.zone/https://script.google.com/macros/s/AKfycbwgt420cMHLw3ecrCs2nlaq1gJMbMfxV08kejIz7Uzy3XQ5UJ5y7qvWTn8bMR8sMKbutg/exec';
+
+	async function cargarDatos() {
+		console.log("Cargando datos desde la Web App...");
+		try {
+			const respuesta = await fetch(WEB_APP_URL);
+			const datos = await respuesta.json();
+			console.log("Datos recibidos:", datos);
+			renderizarTabla(datos);
+		} catch (error) {
+			console.error("Error al obtener datos:", error);
+		}
+	}
+
+	// El resto de la función renderizarTabla se mantiene igual, 
+	// solo asegúrate de que use los nombres de columna de tu Excel.
+
+    function renderizarTabla(datos) {
+        const tbody = document.getElementById('lista-micros');
+        tbody.innerHTML = '';
+
+        datos.forEach(micro => {
+            if(!micro.HORA) return; // Salta filas vacías
+
+            const claseEstado = micro.ESTADO.toLowerCase().replace(" ", "");
+            const fila = `
+                <tr>
+                    <td class="hora">${micro.HORA}</td>
+                    <td class="destino">${micro.DESTINO}</td>
+                    <td class="empresa">${micro.EMPRESA}</td>
+                    <td class="plat">${micro.PLAT}</td>
+                    <td><div class="estado ${claseEstado}">${micro.ESTADO}</div></td>
+                </tr>
+            `;
+            tbody.innerHTML += fila;
+        });
+    }
+
+    setInterval(actualizarReloj, 1000);
+    setInterval(cargarDatos, 60000); // Actualiza datos cada 1 minuto
+    cargarDatos();
+</script>
+
+</body>
+</html>
