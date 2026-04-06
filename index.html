@@ -5,63 +5,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tablero de Salidas</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <style>
-		body {background: linear-gradient(135deg, #0a0a0b, #111827);}
-		
-        :root { --bg: #0a0a0b; --row-bg: #1a1a1c; --accent: #facc15; --text: #ffffff; }        
-        
-		header {
-			background: rgba(0,0,0,0.7);
-			backdrop-filter: blur(10px);
-			border-bottom: 2px solid rgba(255,255,255,0.1);
+	<style>
+		:root {
+			--bg: #000;
+			--row-bg: #111;
+			--accent: #ffd700;
+			--text: #ffffff;
 		}
-		
-        .clock { font-size: 3rem; font-weight: bold; color: var(--accent); }
 
-		table {
-			max-width: 1400px;
-			margin: auto;
+		body {
+			background: var(--bg);
+			color: var(--text);
+			font-family: 'Segoe UI', Roboto, sans-serif;
+			margin: 0;
+			overflow: hidden;
 		}
-        th { text-transform: uppercase; color: #888; font-size: 1.2rem; padding: 10px; text-align: left; }
-        
-		td {
+
+		/* HEADER */
+		header {
+			background: rgba(0,0,0,0.9);
+			border-bottom: 2px solid rgba(255,255,255,0.1);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 20px 40px;
+		}
+
+		header div:first-child {
+			font-size: 3rem;
+			font-weight: bold;
+		}
+
+		.clock {
+			font-size: 4.5rem;
+			font-weight: bold;
+			color: var(--accent);
+		}
+
+		/* TABLA */
+		table {
+			width: 100%;
+			border-collapse: separate;
+			border-spacing: 0 15px;
 			padding: 20px;
-			font-size: 1.8rem;
-			background: rgba(255,255,255,0.03);
-			backdrop-filter: blur(6px);
+		}
+
+		th {
+			text-transform: uppercase;
+			color: #aaa;
+			font-size: 1.5rem;
+			padding: 10px;
+			text-align: left;
+		}
+
+		td {
+			padding: 30px 20px;
+			font-size: 2.6rem;
+			line-height: 1.2;
+			background: var(--row-bg);
 			border-radius: 10px;
 		}
-        
+
 		tr:hover td {
-			background: rgba(255,255,255,0.08);
+			background: #1a1a1a;
 			transition: 0.3s;
 		}
-		
-        .hora { font-weight: bold; color: var(--accent); width: 10%; }
-        .destino { width: 35%; text-transform: uppercase; }
-        .empresa { width: 25%; color: #ccc; }
-        .plat { text-align: center; font-size: 2.5rem; font-weight: bold; width: 10%; }
-        .estado { width: 20%; font-weight: bold; text-align: center; border-radius: 5px; }
 
-        /* Estados dinámicos */
+		/* COLUMNAS */
+		.hora {
+			font-size: 2.4rem;
+			font-weight: bold;
+			color: var(--accent);
+			width: 10%;
+		}
 
+		.destino {
+			width: 35%;
+			font-size: 2.8rem;
+			font-weight: bold;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
+
+		.empresa {
+			width: 25%;
+			font-size: 2rem;
+			color: #ccc;
+		}
+
+		.plat {
+			width: 10%;
+			text-align: center;
+			font-size: 4rem;
+			font-weight: bold;
+		}
+
+		.estado {
+			width: 20%;
+			font-size: 2.2rem;
+			font-weight: bold;
+			text-align: center;
+			border-radius: 8px;
+			padding: 10px;
+		}
+
+		/* ESTADOS */
 		.embarcando {
-			background: linear-gradient(90deg, #166534, #22c55e);
-			color: #fff;
+			background: #22c55e;
+			color: #000;
 			animation: pulse 1.5s infinite;
 		}
 
-		.demorado {
-			background: linear-gradient(90deg, #7f1d1d, #ef4444);
+		.atiempo {
+			background: #3b82f6;
 			color: #fff;
 		}
 
-		.atiempo {
-			background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+		.demorado {
+			background: #ef4444;
 			color: #fff;
 		}
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-    </style>
+
+		/* DESTACAR PRIMER FILA */
+		tr:first-child td {
+			border: 3px solid var(--accent);
+			transform: scale(1.02);
+		}
+
+		/* ANIMACIÓN */
+		@keyframes pulse {
+			0% { opacity: 1; }
+			50% { opacity: 0.6; }
+			100% { opacity: 1; }
+		}
+	</style>    
 </head>
 <body>
 
