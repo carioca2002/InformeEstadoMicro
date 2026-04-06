@@ -67,40 +67,51 @@
 	const WEB_APP_URL = 'https://cors-proxy.fringe.zone/https://script.google.com/macros/s/AKfycbwgt420cMHLw3ecrCs2nlaq1gJMbMfxV08kejIz7Uzy3XQ5UJ5y7qvWTn8bMR8sMKbutg/exec';
 
 	async function cargarDatos() {
-		console.log("Cargando datos desde la Web App...");
-		try {
-			const respuesta = await fetch(WEB_APP_URL);
-			const datos = await respuesta.json();
-			console.log("Datos recibidos:", datos);
-			renderizarTabla(datos);
-		} catch (error) {
-			console.error("Error al obtener datos:", error);
-		}
+		console.log("Cargando datos desde CSV...");
+
+		Papa.parse(CSV_URL, {
+			download: true,
+			header: true,
+			complete: function(results) {
+				const data = results.data; // 👈 ACÁ están los datos reales
+				console.log("Datos recibidos:", data);
+				renderizarTabla(data);
+			},
+			error: function(err) {
+				console.error("Error al obtener datos:", err);
+			}
+		});
 	}
 
 	// El resto de la función renderizarTabla se mantiene igual, 
 	// solo asegúrate de que use los nombres de columna de tu Excel.
 
-    function renderizarTabla(datos) {
-        const tbody = document.getElementById('lista-micros');
-        tbody.innerHTML = '';
+	function renderizarTabla(datos) {
+		const tbody = document.getElementById('lista-micros');
+		tbody.innerHTML = '';
 
-        datos.forEach(micro => {
-            if(!micro.HORA) return; // Salta filas vacías
+		datos.forEach(micro => {
+			// Buscamos las llaves sin importar si son mayúsculas o minúsculas
+			const hora = micro.HORA || micro.Hora || micro.hora || "--:--";
+			const destino = micro.DESTINO || micro.Destino || micro.destino || "Sin Destino";
+			const empresa = micro.EMPRESA || micro.Empresa || micro.empresa || "---";
+			const plat = micro.PLAT || micro.Plat || micro.Plataforma || "-";
+			const estadoRaw = micro.ESTADO || micro.Estado || micro.estado || "A tiempo";
+			
+			const claseEstado = estadoRaw.toLowerCase().replace(/\s/g, "");
 
-            const claseEstado = micro.ESTADO.toLowerCase().replace(" ", "");
-            const fila = `
-                <tr>
-                    <td class="hora">${micro.HORA}</td>
-                    <td class="destino">${micro.DESTINO}</td>
-                    <td class="empresa">${micro.EMPRESA}</td>
-                    <td class="plat">${micro.PLAT}</td>
-                    <td><div class="estado ${claseEstado}">${micro.ESTADO}</div></td>
-                </tr>
-            `;
-            tbody.innerHTML += fila;
-        });
-    }
+			const fila = `
+				<tr>
+					<td class="hora">${hora}</td>
+					<td class="destino">${destino}</td>
+					<td class="empresa">${empresa}</td>
+					<td class="plat">${plat}</td>
+					<td><div class="estado ${claseEstado}">${estadoRaw}</div></td>
+				</tr>
+			`;
+			tbody.innerHTML += fila;
+		});
+	}
 
     setInterval(actualizarReloj, 1000);
     setInterval(cargarDatos, 60000); // Actualiza datos cada 1 minuto
