@@ -124,9 +124,9 @@
 		tbody.innerHTML = '';
 
 function renderizarTabla(datos) {
-    const tbody = document.getElementById('lista-micros');
-    tbody.innerHTML = '';
-
+	    const tbody = document.getElementById('lista-micros');
+	    tbody.innerHTML = '';
+	
 		// 🧠 Orden personalizado
 		const prioridadEstado = {
 			"embarcando": 1,
@@ -139,23 +139,21 @@ function renderizarTabla(datos) {
 		datos.sort((a, b) => {
 			const estadoA = (a.ESTADO || "").toLowerCase().replace(/\s/g, "");
 			const estadoB = (b.ESTADO || "").toLowerCase().replace(/\s/g, "");
-
+	
 			const prioridadA = prioridadEstado[estadoA] || 99;
 			const prioridadB = prioridadEstado[estadoB] || 99;
-
+	
 			// Primero por estado
 			if (prioridadA !== prioridadB) {
 				return prioridadA - prioridadB;
 			}
-
+	
 			// Luego por hora
 			const horaA = (a.HORA || "00:00");
 			const horaB = (b.HORA || "00:00");
-
+	
 			return horaA.localeCompare(horaB);
 		});
-
-		datos.forEach(micro => {
 		
 		datos.forEach(micro => {
 			// Buscamos las llaves sin importar si son mayúsculas o minúsculas
@@ -166,7 +164,7 @@ function renderizarTabla(datos) {
 			const estadoRaw = micro.ESTADO || micro.Estado || micro.estado || "A tiempo";
 			
 			const claseEstado = estadoRaw.toLowerCase().replace(/\s/g, "");
-
+	
 			const fila = `
 				<tr>
 					<td class="hora">${hora}</td>
