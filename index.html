@@ -6,16 +6,37 @@
     <title>Tablero de Salidas</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root { --bg: #0a0a0b; --row-bg: #1a1a1c; --accent: #facc15; --text: #ffffff; }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; overflow: hidden; }
+		body {background: linear-gradient(135deg, #0a0a0b, #111827);}
+		
+        :root { --bg: #0a0a0b; --row-bg: #1a1a1c; --accent: #facc15; --text: #ffffff; }        
         
-        header { background: #000; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--accent); }
+		header {
+			background: rgba(0,0,0,0.7);
+			backdrop-filter: blur(10px);
+			border-bottom: 2px solid rgba(255,255,255,0.1);
+		}
+		
         .clock { font-size: 3rem; font-weight: bold; color: var(--accent); }
-        
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; padding: 10px; }
+
+		table {
+			max-width: 1400px;
+			margin: auto;
+		}
         th { text-transform: uppercase; color: #888; font-size: 1.2rem; padding: 10px; text-align: left; }
-        td { padding: 20px; font-size: 1.8rem; background: var(--row-bg); }
         
+		td {
+			padding: 20px;
+			font-size: 1.8rem;
+			background: rgba(255,255,255,0.03);
+			backdrop-filter: blur(6px);
+			border-radius: 10px;
+		}
+        
+		tr:hover td {
+			background: rgba(255,255,255,0.08);
+			transition: 0.3s;
+		}
+		
         .hora { font-weight: bold; color: var(--accent); width: 10%; }
         .destino { width: 35%; text-transform: uppercase; }
         .empresa { width: 25%; color: #ccc; }
@@ -23,10 +44,22 @@
         .estado { width: 20%; font-weight: bold; text-align: center; border-radius: 5px; }
 
         /* Estados dinámicos */
-        .embarcando { background-color: #166534; color: #4ade80; animation: pulse 1.5s infinite; }
-        .demorado { background-color: #7f1d1d; color: #f87171; }
-        .atiempo { color: #38bdf8; }
 
+		.embarcando {
+			background: linear-gradient(90deg, #166534, #22c55e);
+			color: #fff;
+			animation: pulse 1.5s infinite;
+		}
+
+		.demorado {
+			background: linear-gradient(90deg, #7f1d1d, #ef4444);
+			color: #fff;
+		}
+
+		.atiempo {
+			background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+			color: #fff;
+		}
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
@@ -90,6 +123,40 @@
 		const tbody = document.getElementById('lista-micros');
 		tbody.innerHTML = '';
 
+function renderizarTabla(datos) {
+    const tbody = document.getElementById('lista-micros');
+    tbody.innerHTML = '';
+
+		// 🧠 Orden personalizado
+		const prioridadEstado = {
+			"embarcando": 1,
+			"enplataforma": 1,
+			"atiempo": 2,
+			"salio": 2,
+			"demorado": 3
+		};
+
+		datos.sort((a, b) => {
+			const estadoA = (a.ESTADO || "").toLowerCase().replace(/\s/g, "");
+			const estadoB = (b.ESTADO || "").toLowerCase().replace(/\s/g, "");
+
+			const prioridadA = prioridadEstado[estadoA] || 99;
+			const prioridadB = prioridadEstado[estadoB] || 99;
+
+			// Primero por estado
+			if (prioridadA !== prioridadB) {
+				return prioridadA - prioridadB;
+			}
+
+			// Luego por hora
+			const horaA = (a.HORA || "00:00");
+			const horaB = (b.HORA || "00:00");
+
+			return horaA.localeCompare(horaB);
+		});
+
+		datos.forEach(micro => {
+		
 		datos.forEach(micro => {
 			// Buscamos las llaves sin importar si son mayúsculas o minúsculas
 			const hora = micro.HORA || micro.Hora || micro.hora || "--:--";
